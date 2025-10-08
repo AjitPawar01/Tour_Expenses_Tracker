@@ -73,7 +73,7 @@
                     android:text="Food"
                     android:textSize="11sp"
                     android:textStyle="bold"
-                    android:textColor="#6366F1"
+                    android:textColor="#4B5563"
                     android:background="@drawable/category_tag"
                     android:paddingStart="10dp"
                     android:paddingEnd="10dp"

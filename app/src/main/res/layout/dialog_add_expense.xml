@@ -86,7 +86,7 @@
                 android:text="₹"
                 android:textSize="28sp"
                 android:textStyle="bold"
-                android:textColor="#6366F1"/>
+                android:textColor="#1F2937"/>
 
             <EditText
                 android:id="@+id/etAmount"
@@ -372,12 +372,24 @@
             android:layout_marginTop="20dp"
             android:layout_marginBottom="8dp"/>
 
-        <Spinner
-            android:id="@+id/spinnerPaidBy"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="56dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/input_background"
-            android:padding="16dp"/>
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
+
+            <Spinner
+                android:id="@+id/spinnerPaidBy"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:background="@android:color/transparent"
+                android:spinnerMode="dropdown"
+                android:popupBackground="#FFFFFF"/>
+
+        </LinearLayout>
 
         <!-- Self Paid Toggle -->
         <com.google.android.material.button.MaterialButton
@@ -387,14 +399,14 @@
             android:text="EVERYONE PAID FOR THEMSELVES"
             android:textSize="12sp"
             android:textStyle="bold"
-            android:textColor="#6366F1"
-            android:backgroundTint="#EEF2FF"
+            android:textColor="#1F2937"
+            android:backgroundTint="#FFFFFF"
             app:cornerRadius="12dp"
-            app:strokeColor="#6366F1"
+            app:strokeColor="#1F2937"
             app:strokeWidth="2dp"
             android:layout_marginTop="12dp"
             app:icon="@android:drawable/ic_menu_my_calendar"
-            app:iconTint="#6366F1"
+            app:iconTint="#1F2937"
             app:iconGravity="textStart"/>
 
         <!-- Action Buttons -->
@@ -414,8 +426,10 @@
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textColor="#6B7280"
-                android:backgroundTint="#F3F4F6"
+                android:backgroundTint="#FFFFFF"
                 app:cornerRadius="14dp"
+                app:strokeColor="#E5E7EB"
+                app:strokeWidth="2dp"
                 android:layout_marginEnd="8dp"
                 app:elevation="0dp"/>
 
@@ -428,7 +442,7 @@
                 android:textSize="15sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF"
-                android:backgroundTint="#6366F1"
+                android:backgroundTint="#1F2937"
                 app:cornerRadius="14dp"
                 android:layout_marginStart="8dp"
                 app:elevation="4dp"

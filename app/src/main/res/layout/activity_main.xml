@@ -46,7 +46,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Welcome Back 👋"
-                            android:textColor="#FFFFFF"
+                            android:textColor="#000000"
                             android:textSize="16sp"
                             android:alpha="0.9"/>
 
@@ -54,7 +54,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="My Trips"
-                            android:textColor="#FFFFFF"
+                            android:textColor="#000000"
                             android:textSize="32sp"
                             android:textStyle="bold"
                             android:fontFamily="sans-serif-medium"
@@ -115,7 +115,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="0"
-                                android:textColor="#FFFFFF"
+                                android:textColor="#000000"
                                 android:textSize="28sp"
                                 android:textStyle="bold"
                                 android:fontFamily="sans-serif-medium"
@@ -125,7 +125,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="Active Trips"
-                                android:textColor="#FFFFFF"
+                                android:textColor="#000000"
                                 android:textSize="12sp"
                                 android:alpha="0.9"
                                 android:layout_marginTop="4dp"/>
@@ -393,7 +393,7 @@
         android:textSize="15sp"
         app:icon="@drawable/ic_add"
         app:iconTint="#FFFFFF"
-        app:backgroundTint="#EC4899"
+        app:backgroundTint="#595959"
         app:elevation="8dp"
         app:borderWidth="0dp"/>
 

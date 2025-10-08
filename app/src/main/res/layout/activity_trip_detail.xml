@@ -67,16 +67,16 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Total Expenses"
-                            android:textColor="#FFFFFF"
+                            android:textColor="#1F2937"
                             android:textSize="14sp"
-                            android:alpha="0.9"/>
+                            android:alpha="0.7"/>
 
                         <TextView
                             android:id="@+id/tvTripTotal"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="₹0.00"
-                            android:textColor="#FFFFFF"
+                            android:textColor="#1F2937"
                             android:textSize="42sp"
                             android:textStyle="bold"
                             android:layout_marginTop="4dp"
@@ -85,8 +85,8 @@
                         <View
                             android:layout_width="60dp"
                             android:layout_height="3dp"
-                            android:background="#FFFFFF"
-                            android:alpha="0.5"
+                            android:background="#1F2937"
+                            android:alpha="0.3"
                             android:layout_marginTop="12dp"
                             android:layout_marginBottom="12dp"/>
 
@@ -100,19 +100,19 @@
                                 android:layout_width="20dp"
                                 android:layout_height="20dp"
                                 android:src="@android:drawable/ic_menu_my_calendar"
-                                app:tint="#FFFFFF"
-                                android:alpha="0.8"/>
+                                android:tint="#1F2937"
+                                android:alpha="0.6"/>
 
                             <TextView
                                 android:id="@+id/tvMyShare"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="₹0.00 per person"
-                                android:textColor="#FFFFFF"
+                                android:textColor="#1F2937"
                                 android:textSize="15sp"
                                 android:textStyle="bold"
                                 android:layout_marginStart="8dp"
-                                android:alpha="0.95"/>
+                                android:alpha="0.8"/>
 
                         </LinearLayout>
 
@@ -129,7 +129,7 @@
                     android:textColor="#FFFFFF"
                     android:textSize="15sp"
                     android:textStyle="bold"
-                    android:backgroundTint="#6366F1"
+                    android:backgroundTint="#4B5563"
                     app:cornerRadius="16dp"
                     app:elevation="6dp"
                     android:layout_marginTop="16dp"
@@ -169,7 +169,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="Recent Expenses"
+                    android:text="Expenses"
                     android:textSize="20sp"
                     android:textStyle="bold"
                     android:textColor="#1F2937"
@@ -250,7 +250,7 @@
         android:layout_gravity="bottom|end"
         android:layout_margin="24dp"
         android:src="@drawable/ic_add"
-        app:backgroundTint="#EC4899"
+        app:backgroundTint="#374151"
         app:tint="#FFFFFF"
         app:elevation="8dp"
         app:borderWidth="0dp"

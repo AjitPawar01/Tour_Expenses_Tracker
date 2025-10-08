@@ -1,6 +1,7 @@
 package com.example.tourexpenses;
 
 import android.app.AlertDialog;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -18,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.text.SimpleDateFormat;
@@ -36,7 +39,7 @@ public class TripDetailActivity extends AppCompatActivity {
     private int tripId;
     private String tripName;
     private String tripStatus;
-    private ExpenseAdapter adapter;
+    private DateGroupAdapter adapter;
 
     // Category emoji mapping
     private final Map<String, String> categoryEmojis = new HashMap<String, String>() {{
@@ -48,6 +51,24 @@ public class TripDetailActivity extends AppCompatActivity {
         put("Fuel", "⛽");
         put("Other", "📦");
     }};
+
+    // Date Group Model
+    class DateGroup {
+        String date;
+        List<DatabaseHelper.Expense> expenses;
+        boolean isExpanded;
+        double totalAmount;
+
+        DateGroup(String date, List<DatabaseHelper.Expense> expenses) {
+            this.date = date;
+            this.expenses = expenses;
+            this.isExpanded = false;
+            this.totalAmount = 0;
+            for (DatabaseHelper.Expense expense : expenses) {
+                this.totalAmount += expense.amount;
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,7 +117,33 @@ public class TripDetailActivity extends AppCompatActivity {
 
     private void loadExpenses() {
         List<DatabaseHelper.Expense> expenses = db.getTripExpenses(tripId);
-        adapter = new ExpenseAdapter(expenses);
+
+        // Group expenses by date
+        LinkedHashMap<String, List<DatabaseHelper.Expense>> groupedExpenses = new LinkedHashMap<>();
+        SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
+        SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy", Locale.getDefault());
+
+        for (DatabaseHelper.Expense expense : expenses) {
+            try {
+                Date date = inputFormat.parse(expense.date);
+                String dateKey = outputFormat.format(date);
+
+                if (!groupedExpenses.containsKey(dateKey)) {
+                    groupedExpenses.put(dateKey, new ArrayList<>());
+                }
+                groupedExpenses.get(dateKey).add(expense);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Create date groups
+        List<DateGroup> dateGroups = new ArrayList<>();
+        for (Map.Entry<String, List<DatabaseHelper.Expense>> entry : groupedExpenses.entrySet()) {
+            dateGroups.add(new DateGroup(entry.getKey(), entry.getValue()));
+        }
+
+        adapter = new DateGroupAdapter(dateGroups);
         recyclerExpenses.setAdapter(adapter);
 
         // Show/hide empty state
@@ -127,6 +174,124 @@ public class TripDetailActivity extends AppCompatActivity {
         } else {
             tvMyShare.setText("No shared expenses yet");
         }
+    }
+
+    // Date Group Adapter
+    class DateGroupAdapter extends RecyclerView.Adapter<DateGroupAdapter.DateGroupViewHolder> {
+        private List<DateGroup> dateGroups;
+
+        public DateGroupAdapter(List<DateGroup> dateGroups) {
+            this.dateGroups = dateGroups;
+        }
+
+        @Override
+        public DateGroupViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.item_date_group, parent, false);
+            return new DateGroupViewHolder(view);
+        }
+
+        @Override
+        public void onBindViewHolder(DateGroupViewHolder holder, int position) {
+            DateGroup dateGroup = dateGroups.get(position);
+
+            holder.tvDate.setText(dateGroup.date);
+            holder.tvExpenseCount.setText(dateGroup.expenses.size() + " expense" +
+                    (dateGroup.expenses.size() > 1 ? "s" : ""));
+            holder.tvDateTotal.setText("₹" + String.format("%.2f", dateGroup.totalAmount));
+
+            // Set expand/collapse icon
+            if (dateGroup.isExpanded) {
+                holder.ivExpandIcon.setRotation(180);
+                holder.expensesContainer.setVisibility(View.VISIBLE);
+            } else {
+                holder.ivExpandIcon.setRotation(0);
+                holder.expensesContainer.setVisibility(View.GONE);
+            }
+
+            // Click to expand/collapse
+            holder.dateHeader.setOnClickListener(v -> {
+                dateGroup.isExpanded = !dateGroup.isExpanded;
+                notifyItemChanged(position);
+            });
+
+            // Clear and add expense items
+            holder.expensesContainer.removeAllViews();
+            if (dateGroup.isExpanded) {
+                for (DatabaseHelper.Expense expense : dateGroup.expenses) {
+                    View expenseView = createExpenseView(expense);
+                    holder.expensesContainer.addView(expenseView);
+                }
+            }
+        }
+
+        @Override
+        public int getItemCount() {
+            return dateGroups.size();
+        }
+
+        class DateGroupViewHolder extends RecyclerView.ViewHolder {
+            TextView tvDate, tvExpenseCount, tvDateTotal;
+            ImageView ivExpandIcon;
+            LinearLayout dateHeader, expensesContainer;
+
+            public DateGroupViewHolder(View itemView) {
+                super(itemView);
+                tvDate = itemView.findViewById(R.id.tvDate);
+                tvExpenseCount = itemView.findViewById(R.id.tvExpenseCount);
+                tvDateTotal = itemView.findViewById(R.id.tvDateTotal);
+                ivExpandIcon = itemView.findViewById(R.id.ivExpandIcon);
+                dateHeader = itemView.findViewById(R.id.dateHeader);
+                expensesContainer = itemView.findViewById(R.id.expensesContainer);
+            }
+        }
+    }
+
+    private View createExpenseView(DatabaseHelper.Expense expense) {
+        View view = LayoutInflater.from(this).inflate(R.layout.item_expense_compact, null);
+
+        TextView tvCategoryIcon = view.findViewById(R.id.tvCategoryIcon);
+        TextView tvDescription = view.findViewById(R.id.tvDescription);
+        TextView tvCategory = view.findViewById(R.id.tvCategory);
+        TextView tvPaidBy = view.findViewById(R.id.tvPaidBy);
+        TextView tvAmount = view.findViewById(R.id.tvAmount);
+
+        // Set values
+        String emoji = categoryEmojis.getOrDefault(expense.category, "📦");
+        tvCategoryIcon.setText(emoji);
+        tvDescription.setText(expense.description);
+        tvCategory.setText(expense.category);
+        tvAmount.setText("₹" + String.format("%.2f", expense.amount));
+
+        if ("SELF_PAID".equals(expense.paidBy)) {
+            tvPaidBy.setText("• Everyone");
+            tvPaidBy.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
+        } else {
+            tvPaidBy.setText("• " + expense.paidBy);
+            tvPaidBy.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+        }
+
+        // Long click to delete
+        view.setOnLongClickListener(v -> {
+            if ("COMPLETED".equals(tripStatus)) {
+                Toast.makeText(this, "Cannot delete expenses from completed trip", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+
+            new AlertDialog.Builder(this)
+                    .setTitle("Delete Expense")
+                    .setMessage("Delete this expense?")
+                    .setPositiveButton("Delete", (d, w) -> {
+                        db.deleteExpense(expense.id);
+                        loadExpenses();
+                        Toast.makeText(this, "Expense deleted", Toast.LENGTH_SHORT).show();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+            return true;
+        });
+
+        return view;
     }
 
     private void showAddExpenseDialog() {
@@ -201,8 +366,8 @@ public class TripDetailActivity extends AppCompatActivity {
         }
 
         ArrayAdapter<String> paidByAdapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_spinner_item, participants);
-        paidByAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                R.layout.spinner_item, participants);
+        paidByAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         spinnerPaidBy.setAdapter(paidByAdapter);
 
         final boolean[] isSelfPaid = {false};
@@ -278,15 +443,8 @@ public class TripDetailActivity extends AppCompatActivity {
         LinearLayout contentLayout = view.findViewById(R.id.settlementContent);
         Button btnClose = view.findViewById(R.id.btnCloseSettlement);
 
-        // 1. INDIVIDUAL SPENDING SECTION
-        addSectionHeader(contentLayout, "👤", "Individual Spending");
-        Map<String, Double> totalSpending = db.getParticipantTotalSpending(tripId);
-        for (Map.Entry<String, Double> entry : totalSpending.entrySet()) {
-            addSpendingCard(contentLayout, entry.getKey(), entry.getValue());
-        }
-        addSpacer(contentLayout, 20);
+        // 1. DAY-WISE EXPENSES SECTION
 
-        // 2. DAY-WISE EXPENSES SECTION
         addSectionHeader(contentLayout, "📅", "Day-wise Expenses");
         Map<String, Double> dayWiseExpenses = db.getDayWiseExpenses(tripId);
         if (dayWiseExpenses.isEmpty()) {
@@ -295,6 +453,14 @@ public class TripDetailActivity extends AppCompatActivity {
             for (Map.Entry<String, Double> entry : dayWiseExpenses.entrySet()) {
                 addDayCard(contentLayout, entry.getKey(), entry.getValue());
             }
+        }
+        addSpacer(contentLayout, 20);
+
+        // 2. INDIVIDUAL SPENDING SECTION
+        addSectionHeader(contentLayout, "👤", "Individual Spending");
+        Map<String, Double> totalSpending = db.getParticipantTotalSpending(tripId);
+        for (Map.Entry<String, Double> entry : totalSpending.entrySet()) {
+            addSpendingCard(contentLayout, entry.getKey(), entry.getValue());
         }
         addSpacer(contentLayout, 20);
 
@@ -369,8 +535,7 @@ public class TripDetailActivity extends AppCompatActivity {
         dialog.show();
     }
 
-// Helper Methods - Add these to your TripDetailActivity class
-
+    // Helper methods for settlement dialog (keep all existing helper methods)
     private void addSectionHeader(LinearLayout parent, String emoji, String title) {
         LinearLayout header = new LinearLayout(this);
         header.setOrientation(LinearLayout.HORIZONTAL);
@@ -631,7 +796,7 @@ public class TripDetailActivity extends AppCompatActivity {
         payerName.setText(payer);
         payerName.setTextSize(13);
         payerName.setTypeface(null, android.graphics.Typeface.BOLD);
-        payerName.setTextColor(android.graphics.Color.WHITE);
+        payerName.setTextColor(Color.BLACK);
         payerName.setMaxLines(1);
         LinearLayout.LayoutParams payerNameParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -665,7 +830,7 @@ public class TripDetailActivity extends AppCompatActivity {
         amountView.setText("₹" + String.format("%.2f", amount));
         amountView.setTextSize(16);
         amountView.setTypeface(null, android.graphics.Typeface.BOLD);
-        amountView.setTextColor(android.graphics.Color.WHITE);
+        amountView.setTextColor(Color.BLACK);
         amountView.setBackgroundColor(android.graphics.Color.parseColor("#40FFFFFF"));
         amountView.setPadding(dpToPx(12), dpToPx(4), dpToPx(12), dpToPx(4));
         LinearLayout.LayoutParams amountParams = new LinearLayout.LayoutParams(
@@ -701,7 +866,7 @@ public class TripDetailActivity extends AppCompatActivity {
         receiverName.setText(receiver);
         receiverName.setTextSize(13);
         receiverName.setTypeface(null, android.graphics.Typeface.BOLD);
-        receiverName.setTextColor(android.graphics.Color.WHITE);
+        receiverName.setTextColor(Color.BLACK);
         receiverName.setMaxLines(1);
         LinearLayout.LayoutParams receiverNameParams = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
@@ -809,93 +974,5 @@ public class TripDetailActivity extends AppCompatActivity {
     public boolean onSupportNavigateUp() {
         finish();
         return true;
-    }
-
-    class ExpenseAdapter extends RecyclerView.Adapter<ExpenseAdapter.ExpenseViewHolder> {
-
-        private List<DatabaseHelper.Expense> expenses;
-
-        public ExpenseAdapter(List<DatabaseHelper.Expense> expenses) {
-            this.expenses = expenses;
-        }
-
-        @Override
-        public ExpenseViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.item_expense, parent, false);
-            return new ExpenseViewHolder(view);
-        }
-
-        @Override
-        public void onBindViewHolder(ExpenseViewHolder holder, int position) {
-            DatabaseHelper.Expense expense = expenses.get(position);
-
-            holder.tvAmount.setText("₹" + String.format("%.2f", expense.amount));
-            holder.tvCategory.setText(expense.category);
-            holder.tvDescription.setText(expense.description);
-
-            // Set category emoji
-            String emoji = categoryEmojis.getOrDefault(expense.category, "📦");
-            holder.tvCategoryIcon.setText(emoji);
-
-            if ("SELF_PAID".equals(expense.paidBy)) {
-                holder.tvPaidBy.setText("Everyone (Self Paid)");
-                holder.tvPaidBy.setTextColor(getResources().getColor(android.R.color.holo_blue_dark));
-            } else {
-                holder.tvPaidBy.setText("Paid by " + expense.paidBy);
-                holder.tvPaidBy.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-            }
-
-            String formattedDate = expense.date;
-            try {
-                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
-                SimpleDateFormat outputFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
-                Date date = inputFormat.parse(expense.date);
-                if (date != null) {
-                    formattedDate = outputFormat.format(date);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            holder.tvDate.setText(formattedDate);
-
-            holder.itemView.setOnLongClickListener(v -> {
-                if ("COMPLETED".equals(tripStatus)) {
-                    Toast.makeText(TripDetailActivity.this, "Cannot delete expenses from completed trip", Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-
-                new AlertDialog.Builder(TripDetailActivity.this)
-                        .setTitle("Delete Expense")
-                        .setMessage("Delete this expense?")
-                        .setPositiveButton("Delete", (d, w) -> {
-                            db.deleteExpense(expense.id);
-                            loadExpenses();
-                            Toast.makeText(TripDetailActivity.this, "Expense deleted", Toast.LENGTH_SHORT).show();
-                        })
-                        .setNegativeButton("Cancel", null)
-                        .show();
-                return true;
-            });
-        }
-
-        @Override
-        public int getItemCount() {
-            return expenses.size();
-        }
-
-        class ExpenseViewHolder extends RecyclerView.ViewHolder {
-            TextView tvAmount, tvCategory, tvDescription, tvPaidBy, tvDate, tvCategoryIcon;
-
-            public ExpenseViewHolder(View itemView) {
-                super(itemView);
-                tvAmount = itemView.findViewById(R.id.tvAmount);
-                tvCategory = itemView.findViewById(R.id.tvCategory);
-                tvDescription = itemView.findViewById(R.id.tvDescription);
-                tvPaidBy = itemView.findViewById(R.id.tvPaidBy);
-                tvDate = itemView.findViewById(R.id.tvDate);
-                tvCategoryIcon = itemView.findViewById(R.id.tvCategoryIcon);
-            }
-        }
     }
 }
