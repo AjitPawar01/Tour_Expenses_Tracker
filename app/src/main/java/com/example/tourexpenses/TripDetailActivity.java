@@ -381,7 +381,7 @@ public class TripDetailActivity extends AppCompatActivity {
             } else {
                 spinnerPaidBy.setEnabled(true);
                 btnSelfPaid.setText("EVERYONE PAID FOR THEMSELVES");
-                btnSelfPaid.setBackgroundTintList(null);
+                btnSelfPaid.setBackgroundTintList((getResources().getColorStateList(android.R.color.white)));
             }
         });
 

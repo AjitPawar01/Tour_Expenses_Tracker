@@ -374,20 +374,20 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="65dp"
             android:background="@drawable/input_background"
             android:paddingStart="16dp"
-            android:paddingEnd="16dp"
             android:paddingTop="4dp"
+            android:paddingEnd="16dp"
             android:paddingBottom="4dp">
 
             <Spinner
                 android:id="@+id/spinnerPaidBy"
                 android:layout_width="match_parent"
-                android:layout_height="48dp"
+                android:layout_height="54dp"
                 android:background="@android:color/transparent"
-                android:spinnerMode="dropdown"
-                android:popupBackground="#FFFFFF"/>
+                android:popupBackground="#FFFFFF"
+                android:spinnerMode="dropdown" />
 
         </LinearLayout>
 
