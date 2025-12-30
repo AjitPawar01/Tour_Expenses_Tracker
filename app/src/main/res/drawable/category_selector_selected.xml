@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/drawable/category_selector_selected.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="#E0E7FF"/>
+    <corners android:radius="12dp"/>
+    <stroke
+        android:width="2dp"
+        android:color="#6366F1"/>
+</shape>

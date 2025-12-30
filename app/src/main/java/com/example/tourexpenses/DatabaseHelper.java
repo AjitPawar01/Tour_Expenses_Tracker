@@ -226,8 +226,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return participants;
     }
 
-    // EXPENSE OPERATIONS
-    public long addExpense(int tripId, String paidBy, double amount, String category, String description) {
+    // EXPENSE OPERATIONS - Updated to accept custom date
+    public long addExpense(int tripId, String paidBy, double amount, String category, String description, String customDate) {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues values = new ContentValues();
         values.put(EXPENSE_TRIP_ID, tripId);
@@ -235,7 +235,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(EXPENSE_AMOUNT, amount);
         values.put(EXPENSE_CATEGORY, category);
         values.put(EXPENSE_DESCRIPTION, description);
-        values.put(EXPENSE_DATE, getCurrentDateTime());
+
+        // Use custom date if provided, otherwise use current date
+        if (customDate != null && !customDate.isEmpty()) {
+            values.put(EXPENSE_DATE, customDate);
+        } else {
+            values.put(EXPENSE_DATE, getCurrentDateTime());
+        }
+
         long id = db.insert(TABLE_EXPENSES, null, values);
         db.close();
         return id;
@@ -245,7 +252,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         List<Expense> expenses = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT * FROM " + TABLE_EXPENSES +
-                        " WHERE " + EXPENSE_TRIP_ID + " = ? ORDER BY " + EXPENSE_ID + " DESC",
+                        " WHERE " + EXPENSE_TRIP_ID + " = ? ORDER BY " + EXPENSE_DATE + " DESC",
                 new String[]{String.valueOf(tripId)});
 
         if (cursor.moveToFirst()) {

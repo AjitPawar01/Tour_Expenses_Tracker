@@ -51,10 +51,10 @@ public class MainActivity extends AppCompatActivity {
         tvTripCount = findViewById(R.id.tvTripCount);
         emptyState = findViewById(R.id.emptyState);
         btnCreateFirstTrip = findViewById(R.id.btnCreateFirstTrip);
-
         btnFilterAll = findViewById(R.id.btnFilterAll);
         btnFilterOngoing = findViewById(R.id.btnFilterOngoing);
         btnFilterCompleted = findViewById(R.id.btnFilterCompleted);
+
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -300,7 +300,7 @@ public class MainActivity extends AppCompatActivity {
             if ("COMPLETED".equals(trip.status)) {
                 holder.tvStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
                 holder.tvStatus.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
-                holder.btnMarkComplete.setText("Mark Ongoing");
+                holder.btnMarkComplete.setText("Ongoing");
                 holder.btnMarkComplete.setIcon(getResources().getDrawable(android.R.drawable.ic_menu_revert));
             } else {
                 holder.tvStatus.setTextColor(getResources().getColor(android.R.color.holo_orange_dark));

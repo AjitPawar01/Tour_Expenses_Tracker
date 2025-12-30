@@ -62,6 +62,56 @@
 
         </LinearLayout>
 
+        <!-- Expense Date Section -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Expense Date"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#6B7280"
+            android:layout_marginBottom="8dp"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@drawable/input_background"
+            android:padding="16dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="📅"
+                android:textSize="24sp"/>
+
+            <EditText
+                android:id="@+id/etExpenseDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@android:color/transparent"
+                android:hint="Select expense date"
+                android:textSize="15sp"
+                android:textColor="#1F2937"
+                android:textColorHint="#9CA3AF"
+                android:focusable="false"
+                android:clickable="true"
+                android:paddingStart="12dp"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="💡 Choose the actual date when this expense occurred"
+            android:textSize="11sp"
+            android:textColor="#6366F1"
+            android:layout_marginTop="6dp"
+            android:layout_marginStart="4dp"
+            android:fontStyle="italic"/>
+
         <!-- Amount Input with Currency Symbol -->
         <TextView
             android:layout_width="wrap_content"
@@ -70,6 +120,7 @@
             android:textSize="13sp"
             android:textStyle="bold"
             android:textColor="#6B7280"
+            android:layout_marginTop="20dp"
             android:layout_marginBottom="8dp"/>
 
         <LinearLayout
@@ -197,7 +248,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Transport"
-                    android:textSize="11sp"
+                    android:textSize="10sp"
                     android:textColor="#6B7280"
                     android:layout_marginTop="4dp"/>
 
@@ -423,7 +474,7 @@
                 android:layout_height="56dp"
                 android:layout_weight="1"
                 android:text="Cancel"
-                android:textSize="15sp"
+                android:textSize="11sp"
                 android:textStyle="bold"
                 android:textColor="#6B7280"
                 android:backgroundTint="#FFFFFF"
@@ -438,8 +489,8 @@
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:layout_weight="1"
-                android:text="Add Expense"
-                android:textSize="15sp"
+                android:text="Add"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF"
                 android:backgroundTint="#1F2937"
